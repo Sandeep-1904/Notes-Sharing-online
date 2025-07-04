@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notes Sharing Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #4cc9f0;
+            --danger-color: #ef233c;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .notes-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+
+        .btn-upload {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-upload:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-logout {
+            background-color: var(--danger-color);
+            border: none;
+        }
+
+        .notes-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        .notes-table thead {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .notes-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .notes-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .notes-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .notes-table tr:hover {
+            background-color: rgba(67, 97, 238, 0.03);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-download {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .btn-remove {
+            background-color: var(--danger-color);
+            border: none;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            display: none;
+        }
+
+        .admin .btn-remove {
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .notes-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="notes-container">
+        <div class="header">
+            <h2>📚 Notes Library</h2>
+            <div class="header-actions">
+                {% if is_admin %}
+                <a href="/upload" class="btn btn-primary btn-upload">+ Upload New Note</a>
+                <a href="/logout" class="btn btn-danger btn-logout">Logout</a>
+                {% else %}
+                <a href="/admin" class="btn btn-outline-primary">Admin Login</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <form method="get" class="filters">
+            <div>
+                <label for="year-select">Year:</label>
+                <select id="year-select" name="year" class="form-select">
+                    <option value="all" {% if selected_year == 'all' %}selected{% endif %}>All</option>
+                    {% for year in available_years %}
+                    <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>Year {{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="subject-select">Subject:</label>
+                <select id="subject-select" name="subject" class="form-select">
+                    <option value="all" {% if selected_subject == 'all' %}selected{% endif %}>All</option>
+                    {% for subj in available_subjects %}
+                    <option value="{{ subj }}" {% if selected_subject == subj %}selected{% endif %}>{{ subj }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </form>
+
+        <!-- Notes Table -->
+        <table class="notes-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Subject</th>
+                    <th>Type</th>
+                    <th>Year</th>
+                    <th>Semester</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="{{ 'admin' if is_admin else '' }}">
+                {% for note in notes %}
+                <tr>
+                    <td>{{ note[1] }}</td>
+                    <td>{{ note[2] }}</td>
+                    <td>{{ note[8] }}</td>
+                    <td>Year {{ note[3] }}</td>
+                    <td>Semester {{ note[4] }}</td>
+                    <td>{{ note[5] }}</td>
+                    <td>
+                        <div class="action-btns">
+                            <a href="/uploads/{{ note[6] }}" class="btn btn-primary btn-download">Download</a>
+                            {% if is_admin %}
+                            <form action="/delete/{{ note[0] }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-remove"
+                                        onclick="return confirm('Are you sure you want to delete this PDF?')">
+                                    Remove
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

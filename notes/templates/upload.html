@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Note</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #38b000;
+            --danger: #ef233c;
+        }
+
+        body {
+            background-color: #f5f7ff;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .upload-container {
+            max-width: 700px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-control, .form-select {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.15);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .year-semester-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 576px) {
+            .year-semester-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn-upload {
+            background-color: var(--success);
+            border: none;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-upload:hover {
+            background-color: #2a8a00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(56, 176, 0, 0.2);
+        }
+
+        .btn-cancel {
+            background-color: white;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn-cancel:hover {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .file-upload-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 1.5rem;
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-label:hover {
+            border-color: var(--accent);
+            background-color: rgba(76, 201, 240, 0.05);
+        }
+
+        .file-upload-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-text {
+            color: var(--secondary);
+            font-weight: 500;
+        }
+
+        .file-upload-hint {
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .upload-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .select-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #6c757d;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="upload-container">
+        <h2>📤 Upload New Note</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-4">
+                <label class="form-label">Title</label>
+                <input type="text" name="title" class="form-control" required placeholder="Enter note title">
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Subject</label>
+                <input type="text" name="subject" class="form-control" required placeholder="Enter subject name">
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Note Type</label>
+                <div class="select-wrapper">
+                    <select name="type" class="form-select" required>
+    <option value="" disabled selected>Select Note Type</option>
+    <option value="Test 1">Test 1</option>
+    <option value="Test 2">Test 2</option>
+    <option value="Lab">Lab</option>
+</select>
+
+                    <span class="select-icon">▼</span>
+                </div>
+            </div>
+
+            <div class="year-semester-container">
+                <div class="mb-4">
+                    <label class="form-label">Year</label>
+                    <div class="select-wrapper">
+                        <select name="year" id="yearSelect" class="form-select" required>
+                            <option value="" disabled selected>Select Year</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                        <span class="select-icon">▼</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Semester</label>
+                    <div class="select-wrapper">
+                        <select name="semester" id="semesterSelect" class="form-select" required disabled>
+                            <option value="" disabled selected>Select Year first</option>
+                        </select>
+                        <span class="select-icon">▼</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" required placeholder="Add a brief description of the notes"></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Choose PDF File</label>
+                <div class="file-upload">
+                    <input type="file" name="file" id="fileInput" class="file-upload-input" accept=".pdf" required>
+                    <label for="fileInput" class="file-upload-label">
+                        <div class="file-upload-icon">📄</div>
+                        <div class="file-upload-text">Click to browse or drag and drop</div>
+                        <div class="file-upload-hint">PDF files only (Max. 10MB)</div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button type="submit" class="btn btn-upload">Upload Note</button>
+                <a href="/" class="btn btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Show selected file name
+        document.getElementById('fileInput').addEventListener('change', function (e) {
+            const fileName = e.target.files[0]?.name || 'No file selected';
+            document.querySelector('.file-upload-text').textContent = fileName;
+        });
+
+        // Dynamic semester options based on year
+        document.getElementById('yearSelect').addEventListener('change', function () {
+            const year = parseInt(this.value);
+            const semesterSelect = document.getElementById('semesterSelect');
+
+            semesterSelect.innerHTML = '';
+
+            if (year >= 1 && year <= 4) {
+                semesterSelect.disabled = false;
+
+                const defaultOption = document.createElement('option');
+                defaultOption.value = "";
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                defaultOption.textContent = "Select Semester";
+                semesterSelect.appendChild(defaultOption);
+
+                const startSemester = (year * 2) - 1;
+                const endSemester = year * 2;
+
+                for (let i = startSemester; i <= endSemester; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `Semester ${i}`;
+                    semesterSelect.appendChild(option);
+                }
+            } else {
+                semesterSelect.disabled = true;
+                const defaultOption = document.createElement('option');
+                defaultOption.value = "";
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                defaultOption.textContent = "Select Year first";
+                semesterSelect.appendChild(defaultOption);
+            }
+        });
+    </script>
+</body>
+</html>
